@@ -26,6 +26,7 @@ import (
 	"github.com/spf13/pflag"
 	corev1 "k8s.io/api/core/v1"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -56,7 +57,12 @@ func main() {
 
 	// Setup a Manager
 	setupLog.Info("setting up manager")
-	mgr, err := manager.New(config.GetConfigOrDie(), manager.Options{
+	cfg, err := config.GetConfig()
+	if err != nil {
+		// webhook does not need kubeconfig
+		cfg = &rest.Config{}
+	}
+	mgr, err := manager.New(cfg, manager.Options{
 		WebhookServer: webhook.NewServer(webhook.Options{CertDir: *certDir}),
 	})
 	if err != nil {

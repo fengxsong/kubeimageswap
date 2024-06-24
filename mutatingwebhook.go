@@ -138,6 +138,9 @@ func (k *kubeimageswap) Default(ctx context.Context, obj runtime.Object) error {
 
 // if true, then it won't process anymore
 func evaluatesJMESPaths(queries []*query, v runtime.Object) (bool, error) {
+	if len(queries) == 0 {
+		return false, nil
+	}
 	out, err := json.Marshal(v)
 	if err != nil {
 		return true, fmt.Errorf("unable to deserialize: %s", err)
